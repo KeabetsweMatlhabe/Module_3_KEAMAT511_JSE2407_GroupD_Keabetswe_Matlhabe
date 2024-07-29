@@ -7,7 +7,7 @@
   import Sort from './components/Sort.svelte'
   import CardSkeleton from './components/Products/CardSkeleton.svelte';
   //import ProductCard from './components/Products/ProductCard.svelte';
-  //import ProductDetails from './components/Products/ProductDetails.svelte';
+  import ProductDetail from '../src/components/Products/ProductDetail.svelte';
   import Ratings from './components/Ratings.svelte'
 
   
@@ -29,6 +29,8 @@
 <Sort />
 <Layout />
 <CardSkeleton />
+<ProductDetail />
+
 
 
 
