@@ -1,63 +1,174 @@
 <script>
-    import { onMount } from 'svelte';
-    let products = [];
-    let favorites = new Set();
-  
-    onMount(async () => {
-      try {
-        const response = await fetch('https://fakestoreapi.com/products');
-        products = await response.json();
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      }
-    });
+  import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
 
-  </script>
-  
-  <div class="grid justify-center">
-    <ul class="lg:max-h-[130rem] max-w-xl mx-auto grid gap-4 grid-cols-1 lg:grid-cols-4 md:grid-cols-2 items-center lg:max-w-none my-4">
-      {#each products as product (product.id)}
-        <li 
-          class="flex flex-col max-h-[130rem] cursor-pointer max-w-80 hover:-translate-y-1 hover:scale-105 duration-300 bg-white border border-slate-200 shadow shadow-slate-950/5 rounded-2xl overflow-hidden"
-        >
-          <img src={product.image} alt={product.title} class="object-contain h-48 mt-3" />
-  
-          <div class="flex-1 flex flex-col p-6">
-            <div class="flex-1">
-                <header class="mb-2 flex-2">
-                  <h2 class="text-lg line-clamp-2 font-extrabold leading-snug">
-                    <div class="text-slate-600">
-                      {product.title}
-                    </div>
-                  </h2>
-                </header>
-              <div class="mx-auto w-[90%] space-y-2">
-                <h2 class="text-base line-clamp-2 font-extrabold text-slate-500 leading-snug">
-                  R{product.price}
-                </h2>
+  let products = writable([]);
+  let originalProducts = [];
+  let selectedProduct = null;
+  let categories = ["All categories"];
+  let searchTerm = "";
+  let filterItem = writable("All categories");
+  let sorting = writable("default");
+  let loading = writable(false);
+  let error = writable(false);
+
+  const fetchProducts = async () => {
+    let url = $filterItem !== "All categories" 
+      ? `https://fakestoreapi.com/products/category/${$filterItem}`
+      : 'https://fakestoreapi.com/products';
+
+    try {
+      loading.set(true);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Data fetching failed, please check your network connection");
+      }
+      const data = await response.json();
+      originalProducts = JSON.parse(JSON.stringify(data));
+      products.set(data);
+    } catch (err) {
+      error.set(err);
+    } finally {
+      loading.set(false);
+      sortProducts();
+      searchProducts();
+    }
+  };
+
+  const sortProducts = () => {
+    if ($sorting !== "default") {
+      products.update(items => items.sort((a, b) =>
+        $sorting === "low" ? a.price - b.price : b.price - a.price
+      ));
+    } else {
+      products.set(JSON.parse(JSON.stringify(originalProducts)));
+    }
+  };
+
+  const searchProducts = () => {
+    if (searchTerm.trim() !== "") {
+      const filteredProducts = originalProducts.filter((product) =>
+        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      products.set(JSON.parse(JSON.stringify(filteredProducts)));
+    } else {
+      products.set(JSON.parse(JSON.stringify(originalProducts)));
+    }
+  };
+
+  onMount(async () => {
+    await fetchProducts();
+
+    // Fetch categories
+    try {
+      const response = await fetch('https://fakestoreapi.com/products/categories');
+      const fetchedCategories = await response.json();
+      categories = ["All categories", ...fetchedCategories];
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  });
+
+  function handleCategoryChange(event) {
+    filterItem.set(event.target.value);
+    fetchProducts();
+  }
+
+  function handleSearch(event) {
+    searchTerm = event.target.value;
+    searchProducts();
+  }
+
+  function showProductDetails(product) {
+    selectedProduct = product;
+  }
+
+  function closeProductDetails() {
+    selectedProduct = null;
+  }
+
+  $: sortProducts();
+  $: searchProducts();
+</script>
+
+<div class="grid justify-center">
+  <div class="mb-4">
+    <select on:change={handleCategoryChange} class="p-2 border rounded">
+      {#each categories as category}
+        <option value={category}>{category}</option>
+      {/each}
+    </select>
+    <input 
+      type="text" 
+      placeholder="Search products" 
+      bind:value={searchTerm} 
+      on:input={handleSearch}
+      class="p-2 border rounded ml-2"
+    />
+  </div>
+
+  <ul class="lg:max-h-[130rem] max-w-xl mx-auto grid gap-4 grid-cols-1 lg:grid-cols-4 md:grid-cols-2 items-center lg:max-w-none my-4">
+    {#each $products as product (product.id)}
+      <li 
+        class="flex flex-col max-h-[130rem] cursor-pointer max-w-80 hover:-translate-y-1 hover:scale-105 duration-300 bg-white border border-slate-200 shadow shadow-slate-950/5 rounded-2xl overflow-hidden"
+        on:click={() => showProductDetails(product)}
+      >
+        <img src={product.image} alt={product.title} class="object-contain h-48 mt-3" />
+
+        <div class="flex-1 flex flex-col p-6">
+          <div class="flex-1">
+            <header class="mb-2 flex-2">
+              <h2 class="text-lg line-clamp-2 font-extrabold leading-snug">
+                <div class="text-slate-600">
+                  {product.title}
+                </div>
+              </h2>
+            </header>
+            <div class="mx-auto w-[90%] space-y-2">
+              <h2 class="text-base line-clamp-2 font-extrabold text-slate-500 leading-snug">
+                R{product.price}
+              </h2>
+            </div>
+            <div class="flex mt-1 space-x-2">
+              <div class="justify-start flex-1">
+                <span
+                  class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                >
+                  {product.category}
+                </span>
               </div>
-              <div class="flex mt-1 space-x-2">
-                <div class="justify-start flex-1">
-                  <span
-                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
-                  >
-                    {product.category}
-                  </span>
-                </div>
-                <div class="justify-end space-x-2">
-                  <button>
-                    <svg class="me-1.5 h-5 w-5 hover:fill-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" transform="scale(1.6)">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z" />
-                    </svg>
-                  </button>
-                  <button class="inline-flex justify-center whitespace-nowrap rounded-lg bg-cyan-700 px-3 py-2 text-sm font-medium text-white hover:bg-cyan-900 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors">
-                    Add To Cart
-                  </button>
-                </div>
+              <div class="justify-end space-x-2">
+                <button>
+                  <svg class="me-1.5 h-5 w-5 hover:fill-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" transform="scale(1.6)">
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z" />
+                  </svg>
+                </button>
+                <button class="inline-flex justify-center whitespace-nowrap rounded-lg bg-cyan-700 px-3 py-2 text-sm font-medium text-white hover:bg-cyan-900 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors">
+                  Add To Cart
+                </button>
               </div>
             </div>
           </div>
-        </li>
-      {/each}
-    </ul>
+        </div>
+      </li>
+    {/each}
+  </ul>
+</div>
+
+{#if selectedProduct}
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg max-w-2xl w-full">
+      <h2 class="text-2xl font-bold mb-4">{selectedProduct.title}</h2>
+      <img src={selectedProduct.image} alt={selectedProduct.title} class="w-1/2 mx-auto mb-4" />
+      <p class="mb-2"><strong>Price:</strong> R{selectedProduct.price}</p>
+      <p class="mb-2"><strong>Category:</strong> {selectedProduct.category}</p>
+      <p class="mb-4">{selectedProduct.description}</p>
+      <button 
+        on:click={closeProductDetails}
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Close
+      </button>
+    </div>
   </div>
+{/if}

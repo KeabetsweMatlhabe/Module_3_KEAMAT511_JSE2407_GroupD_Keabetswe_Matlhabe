@@ -1,5 +1,5 @@
 <script>
-    // import { Link } from 'svelte-routing';
+    import { Link } from 'svelte-routing';
   
     function toggleNavbar() {
       const dropDown = document.getElementById("navbar-dropdown");

@@ -1,6 +1,6 @@
 <script>
-  // import { Router, Route } from "svelte-routing";
-  // import Home from "./routes/Home.svelte";
+  import { Router, Route } from "svelte-routing";
+  //import Home from "./routes/Home.svelte";
   import Header from './components/Header.svelte'
   import Layout from './components/Layout.svelte'
   import Filter from './components/Filter.svelte'
@@ -8,7 +8,7 @@
   import CardSkeleton from './components/Products/CardSkeleton.svelte';
   //import ProductCard from './components/Products/ProductCard.svelte';
   import ProductDetail from '../src/components/Products/ProductDetail.svelte';
-  import Ratings from './components/Ratings.svelte'
+  //import Ratings from './components/Ratings.svelte'
 
   
   
@@ -32,10 +32,16 @@
 <ProductDetail />
 
 
+<Router>
+  <Layout>
+    <Route path="/" component={Home} />
+    <Route path="products/:id" component={ProductDetail} />
+    <Route path="login" component={Login} />
+  </Layout>
+</Router>
 
 
 
-
-<!-- <Router {url}>
-  <Route path="/" component={Home} />
-</Router> -->
+<Router {url}>
+  <Route path="/" component={ProductDetail} />
+</Router> 
