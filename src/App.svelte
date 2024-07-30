@@ -1,47 +1,33 @@
-<script>
-  import { Router, Route } from "svelte-routing";
-  //import Home from "./routes/Home.svelte";
-  import Header from './components/Header.svelte'
-  import Layout from './components/Layout.svelte'
-  import Filter from './components/Filter.svelte'
-  import Sort from './components/Sort.svelte'
-  import CardSkeleton from './components/Products/CardSkeleton.svelte';
-  //import ProductCard from './components/Products/ProductCard.svelte';
-  import ProductDetail from '../src/components/Products/ProductDetail.svelte';
-  //import Ratings from './components/Ratings.svelte'
 
-  
-  
-  // export let url = "";
+<script>
+    import {Router, Link, Route} from "svelte-routing"
+    import Header from "./Components/Header.svelte";
+    import ProductList from "./components/Products/ProductList.svelte";
+    import ProductModal from "./components/Products/ProductModal.svelte";
+    import {selectedCategory, searchQuery, sortOption} from "./store/store";
+    import {onMount} from "svelte";
+    import ProductDetail from "./components/Products/ProductDetail.svelte";
+
+    export let url = "";
+
+  onMount(() => {
+    const params = new URLSearchParams(window.location.search);
+    selectedCategory.set(params.get('category') || '');
+    searchQuery.set(params.get('search') || '');
+    sortOption.set(params.get('sort') || 'default');
+  });
 </script>
 
-<style lang="postcss">
-  :global(html) {
-      background-color: #caf0f8;
-  }
+<style>
 
 </style>
 
-
-
-<Header />
-<Filter />
-<Sort />
-<Layout />
-<CardSkeleton />
-<ProductDetail />
-
-
-<Router>
-  <Layout>
-    <Route path="/" component={Home} />
-    <Route path="products/:id" component={ProductDetail} />
-    <Route path="login" component={Login} />
-  </Layout>
-</Router>
-
-
-
 <Router {url}>
-  <Route path="/" component={ProductDetail} />
-</Router> 
+    <Header />
+    <ProductList/>
+
+    <main>
+        <Route path="/" component={ProductList} />
+        <Route path="/product/:id" component={ProductModal} />
+    </main>
+</Router>
