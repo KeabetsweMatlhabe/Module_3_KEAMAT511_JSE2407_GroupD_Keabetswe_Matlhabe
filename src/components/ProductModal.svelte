@@ -30,8 +30,8 @@
       <div class="spinner"></div>
     </div>
   {:else if product}
-    <div class="modal-content">
-      <img src={product.image} alt={product.title} />
+    <div class="modal-content m-28">
+      <img src={product.image} alt={product.title} class="h-64 max-h-96 objetc-contain" />
       <h2>{product.title}</h2>
       <div class="product-details">
         <p class=""><strong>Price:</strong> ${product.price.toFixed(2)}</p>

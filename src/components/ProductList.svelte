@@ -63,7 +63,7 @@
     align-items: center;
     margin-bottom: 20px;
     padding: 10px;
-    background-color: #f0f4f8;
+    /* background-color: white; */
     border-radius: 8px;
   }
 
@@ -92,8 +92,9 @@
   }
 
   .product-card {
-    background: #fff;
+    background: #ddd;
     border: 1px solid #ddd;
+    height: 100%;
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -107,9 +108,10 @@
   }
 
   .product-card img {
-    max-width: 100%;
-    height: auto;
+    width: 100%;
+    height: 20rem;
     margin-bottom: 15px;
+    object-fit: contain;
   }
 
   .product-card h2 {
@@ -125,7 +127,7 @@
   .product-card button,
   .category-button {
     background-color: #2563eb;
-    color: white;
+    color: black;
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
     border: none;
@@ -189,8 +191,9 @@
 {:else}
   <div class="product-grid">
     {#each sortedProducts as product (product.id)}
-      <Link to={`/product/${product.id}`} class="product-card">
-        <img src={product.image} alt={product.title} />
+      <Link to={`/product/${product.id}`} >
+        <div class="product-card">
+          <img src={product.image} alt={product.title} />
         <h2>{product.title}</h2>
         <p>${product.price.toFixed(2)}</p>
         <p>
@@ -198,6 +201,8 @@
         </p>
         <p>{product.rating.rate} ★ ({product.rating.count} reviews)</p>
         <button class= "bg-blue-500 text-white px-4 py-2 rounded mt-3 hover:bg-blue-600" >Add to Cart</button>
+        </div>
+        
       </Link>
     {:else}
       <p>No products found.</p>
