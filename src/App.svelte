@@ -1,12 +1,11 @@
 
 <script>
     import {Router, Link, Route} from "svelte-routing"
-    import Header from "./Components/Header.svelte";
-    import ProductList from "./components/Products/ProductList.svelte";
-    import ProductModal from "./components/Products/ProductModal.svelte";
+    import Header from "./components/Header.svelte";
+    import ProductList from "./components/ProductList.svelte";
+    import ProductModal from "./components/ProductModal.svelte";
     import {selectedCategory, searchQuery, sortOption} from "./store/store";
     import {onMount} from "svelte";
-    import ProductDetail from "./components/Products/ProductDetail.svelte";
 
     export let url = "";
 
@@ -24,7 +23,6 @@
 
 <Router {url}>
     <Header />
-    <ProductList/>
 
     <main>
         <Route path="/" component={ProductList} />

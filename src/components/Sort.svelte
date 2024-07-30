@@ -1,4 +1,3 @@
-Sort:
 
 <script>
     import { sortOption } from '../store/store';

@@ -4,7 +4,7 @@
     import { onMount } from 'svelte';
     import { Link } from "svelte-routing";
 
-    import { selectedCategory, searchQuery, sortOption } from "../../store/store"
+    import { selectedCategory, searchQuery, sortOption } from "../store/store"
 
     export let id;
     let product = null;
@@ -34,13 +34,13 @@
       <img src={product.image} alt={product.title} />
       <h2>{product.title}</h2>
       <div class="product-details">
-        <p><strong>Price:</strong> ${product.price.toFixed(2)}</p>
+        <p class=""><strong>Price:</strong> ${product.price.toFixed(2)}</p>
         <p><strong>Category:</strong> {product.category}</p>
         <p><strong>Rating:</strong> {product.rating.rate} ★ ({product.rating.count} reviews)</p>
         <p><strong>Description:</strong> {product.description}</p>
       </div>
-      <button class="add-to-cart">Add to Cart</button>
-      <Link to={backUrl} class="back-link">Back to Results</Link>
+      <button class="bg-blue-500 text-white px-4 py-2 rounded mt-3 hover:bg-pink-200">Add to favourates</button>
+      <Link to={backUrl} class="bg-blue-500 text-white px-4 py-2 rounded mt-3 hover:bg-blue-600">Back to Results</Link>
     </div>
   {:else}
     <p>Error loading product. Please try again.</p>
